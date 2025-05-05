@@ -2,33 +2,70 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Form Preview Sidebar</title>
+    <title>Form Preview</title>
     <style>
         body {
             width: 300px;
             padding: 10px;
             font-family: Arial, sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
         }
 
-        button {
+        h3 {
+            margin: 0 0 10px 0;
+        }
+
+        
+        #titlesContainer {
+            flex: 1;
+            overflow-y: auto;
+            max-height: 200px;
+            margin-bottom: 10px;
+        }
+
+        .title-button {
             width: 100%;
-            padding: 10px;
+            padding: 8px;
+            margin: 4px 0;
             background-color: #4CAF50;
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            margin-bottom: 10px;
+            text-align: left;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        button:hover {
+        .title-button:hover {
             background-color: #45a049;
         }
+
+        #previewForm {
+            width: 100%;
+            padding: 10px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: auto;
+        }
+
+
+        #previewForm:hover {
+            background-color: #1976D2;
+        }
+
     </style>
 </head>
 <body>
-    <h3>Form Preview Sidebar</h3>
-    <button id="toggleSidebar">Toggle Sidebar</button>
+    <h3>Select a Job Title</h3>
+    <div id="titlesContainer"></div>
     <button id="previewForm">Preview Form Data</button>
     <script src="popup.js"></script>
 </body>

@@ -1,16 +1,10 @@
 console.log('Content: Script loaded');
-let sidebar = null;
-let isSidebarOpen = false;
 let isInjected = true;
 
 // Ensure the message listener is set up
 const messageListener = function(request, sender, sendResponse) {
     console.log('Content: Received message:', request);
-    if (request.action === 'toggleSidebar') {
-        console.log('Content: Toggling sidebar');
-        toggleSidebar();
-        sendResponse({status: 'success'});
-    } else if (request.action === 'selectTitle') {
+    if (request.action === 'selectTitle') {
         console.log('Content: Title selected:', request.titleId);
         // Send message to popup that title was selected
         chrome.runtime.sendMessage({action: 'titleSelected', titleId: request.titleId});
@@ -379,14 +373,11 @@ function openSidebar() {
     isSidebarOpen = true;
 }
 
-// Make closeSidebar function globally accessible
-window.closeSidebar = function() {
+// Close sidebar function
+function closeSidebar() {
+    const sidebar = document.getElementById('formPreviewPanel');
     if (sidebar) {
         sidebar.remove();
-        sidebar = null;
-        isSidebarOpen = false;
-        // Update the popup button text
-        chrome.runtime.sendMessage({action: 'sidebarToggled', isOpen: false});
     }
 }
 

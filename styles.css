@@ -88,6 +88,28 @@ h2 {
     padding: 10px;
     background-color: #f8f8f8;
     border-radius: 4px;
+    border: 2px dashed transparent;
+    transition: all 0.2s ease;
+    position: relative;
+    cursor: move;
+}
+
+.form-field.dragging {
+    opacity: 0.5;
+    background-color: #e0e0e0;
+}
+
+.form-field.drag-over {
+    border-color: #4CAF50;
+    background-color: #e8f5e9;
+}
+
+.form-field.drag-over.before {
+    border-top: 4px solid #4CAF50;
+}
+
+.form-field.drag-over.after {
+    border-bottom: 4px solid #4CAF50;
 }
 
 .form-field input,

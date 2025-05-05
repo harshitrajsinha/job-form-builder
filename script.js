@@ -37,6 +37,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function addFormField(type) {
         const fieldDiv = document.createElement('div');
         fieldDiv.className = 'form-field';
+        fieldDiv.draggable = true;
+        fieldDiv.dataset.type = type;
 
         const fieldTitle = prompt('Enter field title:');
         if (!fieldTitle) return;
@@ -47,8 +49,99 @@ document.addEventListener('DOMContentLoaded', () => {
             ${createFormField(type)}
         `;
 
+        // Add drag event listeners
+        fieldDiv.addEventListener('dragstart', handleDragStart);
+        fieldDiv.addEventListener('dragover', handleDragOver);
+        fieldDiv.addEventListener('dragleave', handleDragLeave);
+        fieldDiv.addEventListener('drop', handleDrop);
+        fieldDiv.addEventListener('dragend', handleDragEnd);
+
         formPreview.appendChild(fieldDiv);
         updateSubmitButtonState();
+    }
+
+    // Drag and Drop functionality
+    let draggedItem = null;
+    let dragOverItem = null;
+
+    function handleDragStart(e) {
+        this.classList.add('dragging');
+        draggedItem = this;
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/html', this.innerHTML);
+        
+        // Add a clone for drag image
+        const dragImage = this.cloneNode(true);
+        dragImage.style.width = `${this.offsetWidth}px`;
+        dragImage.style.position = 'absolute';
+        dragImage.style.top = '-9999px';
+        document.body.appendChild(dragImage);
+        e.dataTransfer.setDragImage(dragImage, 0, 0);
+        
+        // Remove the clone after a short delay
+        setTimeout(() => document.body.removeChild(dragImage), 0);
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        
+        // Remove previous drag-over classes
+        document.querySelectorAll('.form-field.drag-over').forEach(el => {
+            el.classList.remove('drag-over', 'before', 'after');
+        });
+        
+        // Calculate drop position
+        const rect = this.getBoundingClientRect();
+        const dropY = e.clientY - rect.top;
+        const dropPosition = dropY > (rect.height / 2) ? 'after' : 'before';
+        
+        // Add appropriate class based on drop position
+        this.classList.add('drag-over', dropPosition);
+        dragOverItem = this;
+        
+        return false;
+    }
+    
+    function handleDragLeave() {
+        this.classList.remove('drag-over', 'before', 'after');
+    }
+
+    function handleDrop(e) {
+        e.preventDefault();
+        
+        // Remove all drag-over classes
+        document.querySelectorAll('.form-field.drag-over').forEach(el => {
+            el.classList.remove('drag-over', 'before', 'after');
+        });
+        
+        if (draggedItem !== this && dragOverItem) {
+            const rect = this.getBoundingClientRect();
+            const dropY = e.clientY - rect.top;
+            const dropPosition = dropY > (rect.height / 2) ? 'after' : 'before';
+            
+            if (dropPosition === 'after') {
+                this.parentNode.insertBefore(draggedItem, this.nextSibling);
+            } else {
+                this.parentNode.insertBefore(draggedItem, this);
+            }
+            
+            // Save the new order
+            saveFormData();
+        }
+        
+        return false;
+    }
+
+    function handleDragEnd() {
+        this.classList.remove('dragging');
+        draggedItem = null;
+        dragOverItem = null;
+        
+        // Remove any remaining drag-over classes
+        document.querySelectorAll('.form-field.drag-over').forEach(el => {
+            el.classList.remove('drag-over', 'before', 'after');
+        });
     }
 
     // Function to create form fields based on type
