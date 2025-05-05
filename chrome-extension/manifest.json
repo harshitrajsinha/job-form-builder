@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Form Preview Sidebar",
+  "version": "1.0",
+  "description": "Displays form preview in a sidebar",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting"
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+
+}

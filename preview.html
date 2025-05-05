@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Preview</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .preview-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .field-preview {
+            margin-bottom: 0.5rem;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .field-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .field-title {
+            font-weight: bold;
+            color: #333;
+            margin: 0;
+        }
+
+        .field-value {
+            padding: 12px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 100%;
+            min-height: 60px;
+            max-height: 200px;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            overflow-wrap: break-word;
+            line-height: 1.5;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #888 #f1f1f1;
+            margin-bottom: 0;
+        }
+
+        .copy-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+            float: right;
+        }
+
+        .copy-button:hover {
+            background-color: #45a049;
+        }
+
+        .copy-button:active {
+            background-color: #388e3c;
+        }
+
+        .field-value::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .field-value::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .field-value::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        .field-value::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .title-input-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .title-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .save-button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.2s;
+        }
+
+        .save-button:hover {
+            background-color: #218838;
+        }
+
+        .save-button:active {
+            background-color: #1e7e34;
+        }
+
+        .save-status {
+            margin-top: 10px;
+            text-align: center;
+            font-size: 14px;
+            display: none;
+        }
+
+        .save-status.success {
+            color: #28a745;
+        }
+
+        .save-status.error {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="preview-container">
+        <h2>Form Preview</h2>
+        <div id="formPreviewContainer"></div>
+        <div class="title-input-container">
+            <input type="text" id="dataTitle" placeholder="Enter a title for your form data" class="title-input">
+            <button id="saveButton" class="save-button">Save to Database</button>
+        </div>
+    </div>
+    <script>
+        // Make copyFieldValue function globally accessible
+        window.copyFieldValue = function(button) {
+            const fieldDiv = button.closest('.field-preview');
+            const fieldValue = fieldDiv.querySelector('.field-value').textContent;
+            
+            // Create a temporary textarea element
+            const textarea = document.createElement('textarea');
+            textarea.value = fieldValue;
+            document.body.appendChild(textarea);
+            
+            // Select and copy the text
+            textarea.select();
+            document.execCommand('copy');
+            
+            // Remove the temporary element
+            document.body.removeChild(textarea);
+            
+            // Show success message
+            button.textContent = 'Copied!';
+            setTimeout(() => {
+                button.textContent = 'Copy';
+            }, 2000);
+        }
+
+        // Add save to database functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            const saveButton = document.getElementById('saveButton');
+            const saveStatus = document.createElement('div');
+            saveStatus.className = 'save-status';
+            document.querySelector('.preview-container').appendChild(saveStatus);
+
+            saveButton.addEventListener('click', async () => {
+                const title = document.getElementById('dataTitle').value.trim();
+                if (!title) {
+                    saveStatus.textContent = 'Please enter a title for your form data';
+                    saveStatus.className = 'save-status error';
+                    saveStatus.style.display = 'block';
+                    setTimeout(() => {
+                        saveStatus.style.display = 'none';
+                    }, 3000);
+                    return;
+                }
+                try {
+                    const formData = JSON.parse(localStorage.getItem('formData')) || [];
+                    if (formData.length === 0) {
+                        saveStatus.textContent = 'No form data to save';
+                        saveStatus.className = 'save-status error';
+                        saveStatus.style.display = 'block';
+                        setTimeout(() => {
+                            saveStatus.style.display = 'none';
+                        }, 3000);
+                        return;
+                    }
+
+                    const response = await fetch('http://localhost:5000/save_form_data', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            title: title,
+                            formData: formData
+                        }),
+                    });
+
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        saveStatus.textContent = 'Data saved successfully!';
+                        saveStatus.className = 'save-status success';
+                    } else {
+                        saveStatus.textContent = data.error || 'Failed to save data';
+                        saveStatus.className = 'save-status error';
+                    }
+
+                    saveStatus.style.display = 'block';
+                    setTimeout(() => {
+                        saveStatus.style.display = 'none';
+                    }, 3000);
+                } catch (error) {
+                    saveStatus.textContent = 'Error saving data: ' + error.message;
+                    saveStatus.className = 'save-status error';
+                    saveStatus.style.display = 'block';
+                    setTimeout(() => {
+                        saveStatus.style.display = 'none';
+                    }, 3000);
+                }
+            });
+        });
+
+        // Load form data from localStorage
+        const formData = JSON.parse(localStorage.getItem('formData')) || [];
+        
+        const formPreviewContainer = document.getElementById('formPreviewContainer');
+        
+        formData.forEach(field => {
+            const fieldDiv = document.createElement('div');
+            fieldDiv.className = 'field-preview';
+            
+            const fieldHeader = document.createElement('div');
+            fieldHeader.className = 'field-header';
+            
+            const fieldTitle = document.createElement('div');
+            fieldTitle.className = 'field-title';
+            fieldTitle.textContent = field.title;
+            
+            const copyButton = document.createElement('button');
+            copyButton.className = 'copy-button';
+            copyButton.textContent = 'Copy';
+            copyButton.onclick = function() {
+                window.copyFieldValue(this);
+            };
+            
+            fieldHeader.appendChild(fieldTitle);
+            fieldHeader.appendChild(copyButton);
+            
+            const fieldValue = document.createElement('div');
+            fieldValue.className = 'field-value';
+            fieldValue.textContent = field.value || '';
+            
+            fieldDiv.appendChild(fieldHeader);
+            fieldDiv.appendChild(fieldValue);
+            
+            formPreviewContainer.appendChild(fieldDiv);
+        });
+    </script>
+</body>
+</html>

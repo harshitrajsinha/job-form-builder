@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Builder</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="left-panel">
+            <h2>Form Fields</h2>
+            <div class="field-list">
+                <div class="field-item" data-type="text">Text Field</div>
+                <div class="field-item" data-type="textarea">Text Area</div>
+                <div class="field-item" data-type="number">Number Field</div>
+                <div class="field-item" data-type="email">Email Field</div>
+                <div class="field-item" data-type="password">Password Field</div>
+            </div>
+        </div>
+        <div class="right-panel">
+            <h2>Form Preview</h2>
+            <div class="form-container">
+                <form id="formPreview">
+                    <!-- Form fields will be added here -->
+                </form>
+                <button id="submitForm" class="submit-button" disabled>Submit Form</button>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
