@@ -1,12 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Form Builder</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
+    <div class="theme-toggle">
+        <input type="checkbox" id="theme-toggle-checkbox" class="theme-toggle-checkbox">
+        <label for="theme-toggle-checkbox" class="theme-toggle-label">
+            <i class="fas fa-sun"></i>
+            <i class="fas fa-moon"></i>
+            <span class="theme-toggle-ball"></span>
+        </label>
+    </div>
     <div class="container">
         <div class="left-panel">
             <h2>Form Fields</h2>
@@ -29,5 +38,25 @@
         </div>
     </div>
     <script src="script.js"></script>
+    <script>
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('theme-toggle-checkbox');
+        const html = document.documentElement;
+
+        // Check for saved theme preference or use system preference
+        const savedTheme = localStorage.getItem('theme') || 
+            (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        
+        // Apply the saved theme
+        html.setAttribute('data-theme', savedTheme);
+        themeToggle.checked = savedTheme === 'dark';
+
+        // Toggle theme on checkbox change
+        themeToggle.addEventListener('change', () => {
+            const newTheme = themeToggle.checked ? 'dark' : 'light';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+    </script>
 </body>
 </html>

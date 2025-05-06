@@ -1,21 +1,35 @@
+import os
+import logging
+from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import psycopg2
 import json
-import logging
+
+# Load environment variables
+load_dotenv()
 
 # Set up logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=os.getenv('LOG_LEVEL', 'INFO'),
+    format=os.getenv('LOG_FORMAT', '%(asctime)s - %(levelname)s - %(message)s')
+)
 
 app = Flask(__name__)
+
+
+# Configure CORS
+allowed_origins = os.getenv('ALLOWED_ORIGINS', 'http://localhost:8000,http://localhost:8080,http://locahost:8888').split(',')
 CORS(app, resources={
-    r"/*": {"origins": ["http://localhost:8000", "http://localhost:8080"]}
+    r"/*": {"origins": allowed_origins}
 })
 
 # Add CORS headers to all responses
 @app.after_request
 def after_request(response):
-    response.headers.add('Access-Control-Allow-Origin', 'http://localhost:8000')
+    origin = request.headers.get('Origin', '')
+    if origin in allowed_origins:
+        response.headers.add('Access-Control-Allow-Origin', origin)
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
     response.headers.add('Access-Control-Allow-Credentials', 'true')
@@ -23,12 +37,18 @@ def after_request(response):
 
 # Database configuration
 DB_CONFIG = {
-    'user': 'harshitraj',
-    'password': 'harshit',
-    'host': 'localhost',
-    'port': 5432,
-    'database': 'job_form_builder'
+    'user': os.getenv('DB_USER'),
+    'password': os.getenv('DB_PASSWORD'),
+    'host': os.getenv('DB_HOST', 'localhost'),
+    'port': int(os.getenv('DB_PORT', '5432')),
+    'database': os.getenv('DB_NAME')
 }
+
+# Application configuration
+app.config.update(
+    SECRET_KEY=os.getenv('SECRET_KEY', 'dev-key-change-in-production'),
+    DEBUG=os.getenv('FLASK_DEBUG', '0').lower() in ['true', '1', 't', 'y', 'yes']
+)
 
 def create_connection():
     try:
@@ -38,6 +58,10 @@ def create_connection():
     except psycopg2.Error as e:
         logging.error(f"Error connecting to database: {e}")
         return None
+
+@app.route('/server')
+def server_check():
+    return jsonify({'status': 'ok'}), 200
 
 @app.route('/health')
 def health_check():
@@ -58,28 +82,33 @@ def health_check():
         logging.error(f"Error in health check: {e}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
-def create_table():
-    conn = create_connection()
-    if conn:
-        try:
-            cursor = conn.cursor()
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS form_data (
-                    id SERIAL PRIMARY KEY,
-                    data_title VARCHAR(255) UNIQUE NOT NULL,
-                    data JSONB NOT NULL,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            ''')
-            conn.commit()
-            cursor.close()
-            logging.info('Table created successfully')
-        except psycopg2.Error as e:
-            logging.error(f"Error creating table: {e}")
-        finally:
-            conn.close()
-
+def create_table(retries=5, delay=3):
+    for attempt in range(retries):
+        conn = create_connection()
+        if conn:
+            try:
+                cursor = conn.cursor()
+                cursor.execute('''
+                    CREATE TABLE IF NOT EXISTS form_data (
+                        id SERIAL PRIMARY KEY,
+                        data_title VARCHAR(255) UNIQUE NOT NULL,
+                        data JSONB NOT NULL,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    )
+                ''')
+                conn.commit()
+                cursor.close()
+                logging.info('Table created successfully')
+            except psycopg2.Error as e:
+                logging.error(f"Attempt {attempt+1} - Error creating table: {e}")
+                time.sleep(delay)
+            finally:
+                conn.close()
+        else:
+            logging.warning(f"Attempt {attempt+1} - DB not ready, retrying in {delay}s")
+            time.sleep(delay)
+    logging.error("Failed to create table after several attempts")
 @app.route('/get_data_titles', methods=['GET'])
 def get_data_titles():
     try:
@@ -214,4 +243,6 @@ def save_form_data():
 if __name__ == '__main__':
     # Create database and table on startup
     create_table()
-    app.run(debug=True, port=5000)
+    port = int(os.getenv('FLASK_RUN_PORT', '5000'))
+    debug = os.getenv('FLASK_DEBUG', '1').lower() in ['true', '1', 't', 'y', 'yes']
+    app.run(host='0.0.0.0', port=port, debug=debug)

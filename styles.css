@@ -1,12 +1,41 @@
+:root {
+    --bg-color: #f5f5f5;
+    --panel-bg: white;
+    --text-color: #333;
+    --border-color: #ddd;
+    --field-bg: #f8f9fa;
+    --primary-color: #007bff;
+    --primary-hover: #0056b3;
+    --shadow-color: rgba(0,0,0,0.1);
+    --field-header-bg: #e9ecef;
+}
+
+[data-theme="dark"] {
+    --bg-color: #1a1a1a;
+    --panel-bg: #2d2d2d;
+    --text-color: #f0f0f0;
+    --border-color: #444;
+    --field-bg: #3a3a3a;
+    --primary-color: #4a90e2;
+    --primary-hover: #6aa8ff;
+    --shadow-color: rgba(0,0,0,0.3);
+    --field-header-bg: #3a3a3a;
+}
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 body {
     font-family: Arial, sans-serif;
-    background-color: #f5f5f5;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    min-height: 100vh;
+    padding: 20px;
+    margin: 0;
 }
 
 .container {
@@ -14,13 +43,18 @@ body {
     max-width: 1200px;
     margin: 20px auto;
     gap: 20px;
+    background-color: transparent;
+    padding: 0;
+    box-shadow: none;
+    border-radius: 0;
 }
 
-.left-panel, .right-panel {
-    background-color: white;
+.left-panel, .right-panel, .preview-container {
+    background-color: var(--panel-bg);
     padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px var(--shadow-color);
+    color: var(--text-color);
 }
 
 .left-panel {
@@ -33,28 +67,29 @@ body {
 
 h2 {
     margin-bottom: 20px;
-    color: #333;
+    color: var(--text-color);
+    margin-top: 0;
 }
 
 .field-list {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    margin-top: 20px;
 }
 
 .field-item {
     padding: 10px;
-    background-color: #007bff;
+    background-color: var(--primary-color);
     color: white;
     border-radius: 4px;
     cursor: pointer;
     text-align: center;
     transition: background-color 0.2s;
-    border: none;
 }
 
 .field-item:hover {
-    background-color: #0056b3;
+    background-color: var(--primary-hover);
 }
 
 .form-container {
@@ -65,7 +100,7 @@ h2 {
 .submit-button {
     width: 100%;
     padding: 12px;
-    background-color: #4CAF50;
+    background-color: var(--primary-color);
     color: white;
     border: none;
     border-radius: 4px;
@@ -75,7 +110,7 @@ h2 {
 }
 
 .submit-button:hover {
-    background-color: #45a049;
+    background-color: var(--primary-hover);
 }
 
 .submit-button:disabled {
@@ -86,10 +121,11 @@ h2 {
 .form-field {
     margin-bottom: 20px;
     padding: 10px;
-    background-color: #f8f8f8;
+    background-color: var(--field-bg);
     border-radius: 4px;
     border: 2px dashed transparent;
     transition: all 0.2s ease;
+    color: var(--text-color);
     position: relative;
     cursor: move;
 }
@@ -100,16 +136,17 @@ h2 {
 }
 
 .form-field.drag-over {
-    border-color: #4CAF50;
-    background-color: #e8f5e9;
+    border-color: var(--primary-color);
+    background-color: var(--field-bg);
+    opacity: 0.8;
 }
 
 .form-field.drag-over.before {
-    border-top: 4px solid #4CAF50;
+    border-top: 4px solid var(--primary-color);
 }
 
 .form-field.drag-over.after {
-    border-bottom: 4px solid #4CAF50;
+    border-bottom: 4px solid var(--primary-color);
 }
 
 .form-field input,
@@ -117,7 +154,9 @@ h2 {
     width: 100%;
     padding: 8px;
     margin-top: 5px;
-    border: 1px solid #ddd;
+    background-color: var(--panel-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
     border-radius: 4px;
 }
 
@@ -128,10 +167,54 @@ h2 {
 
 .remove-field {
     float: right;
-    color: #666;
+    color: var(--text-color);
     cursor: pointer;
 }
 
 .remove-field:hover {
     color: #ff4444;
+}
+
+.theme-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.theme-toggle-checkbox {
+    display: none;
+}
+
+.theme-toggle-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 60px;
+    height: 30px;
+    background: var(--border-color);
+    border-radius: 50px;
+    position: relative;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.theme-toggle-label i {
+    font-size: 16px;
+    z-index: 1;
+}
+
+.theme-toggle-ball {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 26px;
+    height: 26px;
+    background-color: white;
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+}
+
+.theme-toggle-checkbox:checked + .theme-toggle-label .theme-toggle-ball {
+    transform: translateX(30px);
 }
