@@ -3,13 +3,19 @@
   "name": "Form Preview Sidebar",
   "version": "1.0",
   "description": "Displays form preview in a sidebar",
-  "permissions": [
-    "activeTab",
-    "storage",
-    "scripting"
-  ],
+  "permissions": ["activeTab", "storage", "scripting"],
   "action": {
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "job.png",
+      "48": "job.png",
+      "128": "job.png"
+    }
+  },
+  "icons": {
+    "16": "job.png",
+    "48": "job.png",
+    "128": "job.png"
   },
   "content_scripts": [
     {
@@ -21,5 +27,4 @@
   "background": {
     "service_worker": "background.js"
   }
-
 }

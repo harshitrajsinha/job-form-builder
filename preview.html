@@ -1,25 +1,28 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Form Preview</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         .preview-container {
             max-width: 800px;
             margin: 40px auto;
             padding: 20px;
-            background-color: white;
+            background-color: var(--panel-bg);
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px var(--shadow-color);
+            color: var(--text-color);
         }
 
         .field-preview {
             margin-bottom: 0.5rem;
             padding: 15px;
-            background-color: #f8f9fa;
+            background-color: var(--field-bg);
             border-radius: 4px;
+            border: 1px solid var(--border-color);
         }
 
         .field-header {
@@ -31,14 +34,15 @@
 
         .field-title {
             font-weight: bold;
-            color: #333;
+            color: var(--text-color);
             margin: 0;
         }
 
         .field-value {
             padding: 12px;
-            background-color: white;
-            border: 1px solid #ddd;
+            background-color: var(--panel-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
             border-radius: 4px;
             width: 100%;
             min-height: 60px;
@@ -49,7 +53,7 @@
             line-height: 1.5;
             overflow-y: auto;
             scrollbar-width: thin;
-            scrollbar-color: #888 #f1f1f1;
+            scrollbar-color: var(--border-color) var(--panel-bg);
             margin-bottom: 0;
         }
 
@@ -78,16 +82,16 @@
         }
 
         .field-value::-webkit-scrollbar-track {
-            background: #f1f1f1;
+            background: var(--panel-bg);
         }
 
         .field-value::-webkit-scrollbar-thumb {
-            background: #888;
+            background: var(--border-color);
             border-radius: 4px;
         }
 
         .field-value::-webkit-scrollbar-thumb:hover {
-            background: #555;
+            background: var(--primary-color);
         }
 
         .title-input-container {
@@ -140,6 +144,14 @@
     </style>
 </head>
 <body>
+    <div class="theme-toggle">
+        <input type="checkbox" id="theme-toggle-checkbox" class="theme-toggle-checkbox">
+        <label for="theme-toggle-checkbox" class="theme-toggle-label">
+            <i class="fas fa-sun"></i>
+            <i class="fas fa-moon"></i>
+            <span class="theme-toggle-ball"></span>
+        </label>
+    </div>
     <div class="preview-container">
         <h2>Form Preview</h2>
         <div id="formPreviewContainer"></div>
@@ -149,6 +161,25 @@
         </div>
     </div>
     <script>
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('theme-toggle-checkbox');
+        const html = document.documentElement;
+
+        // Check for saved theme preference or use system preference
+        const savedTheme = localStorage.getItem('theme') || 
+            (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        
+        // Apply the saved theme
+        html.setAttribute('data-theme', savedTheme);
+        themeToggle.checked = savedTheme === 'dark';
+
+        // Toggle theme on checkbox change
+        themeToggle.addEventListener('change', () => {
+            const newTheme = themeToggle.checked ? 'dark' : 'light';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+
         // Make copyFieldValue function globally accessible
         window.copyFieldValue = function(button) {
             const fieldDiv = button.closest('.field-preview');
