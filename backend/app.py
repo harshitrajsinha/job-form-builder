@@ -20,7 +20,7 @@ app = Flask(__name__)
 
 # Configure CORS
 # if ALLOWED_ORIGINS env is null then string (2nd arg) will be used as default
-allowed_origins = list(set(os.getenv('ALLOWED_ORIGINS', 'http://localhost:8000,http://localhost:8080,http://locahost:8888').split(',')))
+allowed_origins = list(set(os.getenv('ALLOWED_ORIGINS', 'http://locahost:8888').split(',')))
 CORS(app, resources={
     r"/*": {"origins": allowed_origins}
 })
@@ -170,11 +170,10 @@ def get_form_data():
                 # logging.info(f"Found data: {data}")
                 logging.debug(f"Data content: {json.dumps(data, indent=2)}")
                 response = jsonify(data)
-                origin = request.headers.get('Origin')
+                origin = request.headers.get('Origin', '')
                 if origin in allowed_origins:
-                    response.headers.add('Access-Control-Allow-Origin', origin)
-                    response.headers.add('Vary', 'Origin')
-                response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+                    response.headers['Access-Control-Allow-Origin'] = origin
+                response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
                 return response, 200
             else:
                 logging.error(f"No data found for title: {title}")

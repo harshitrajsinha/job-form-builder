@@ -5,10 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Job Form Preview</title>
-    <link rel="icon" type="image/png" sizes="32x32" href="./chrome-extension/job.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="./chrome-extension/job.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="./job.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="./job.png" />
     <link rel="manifest" href="./site.webmanifest" />
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="./styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         .preview-container {
@@ -165,7 +165,11 @@
             <button id="saveButton" class="save-button">Save to Database</button>
         </div>
     </div>
+    <!-- <script src="./script.js"></script> -->
     <script>
+
+        const BACKEND_URL = 'http://localhost:5000';
+
         // Theme toggle functionality
         const themeToggle = document.getElementById('theme-toggle-checkbox');
         const html = document.documentElement;
@@ -239,7 +243,7 @@
                         return;
                     }
 
-                    const response = await fetch('http://localhost:5000/save_form_data', {
+                    const response = await fetch(`${BACKEND_URL}/save_form_data`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

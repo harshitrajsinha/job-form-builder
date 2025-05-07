@@ -1,9 +1,12 @@
+
+const BACKEND_URL = 'http://localhost:5000';
+
 document.addEventListener("DOMContentLoaded", function () {
   console.log("Popup: Script loaded");
   const previewButton = document.getElementById("previewForm");
   const container = document.getElementById("titlesContainer");
 
-  // Close popup when clicking outside
+  // Close popup when clicking outside  
   document.addEventListener("click", (e) => {
     if (e.target === document.documentElement) {
       window.close();
@@ -87,7 +90,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function fetchDataTitles() {
-    fetch("http://localhost:5000/get_data_titles")
+    fetch(`${BACKEND_URL}/get_data_titles`)
       .then((response) => response.json())
       .then((data) => {
         console.log("Popup: Received data titles:", data);
@@ -107,7 +110,7 @@ document.addEventListener("DOMContentLoaded", function () {
           button.addEventListener("click", async () => {
             try {
               const response = await fetch(
-                `http://localhost:5000/get_form_data?title=${encodeURIComponent(
+                `${BACKEND_URL}/get_form_data?title=${encodeURIComponent(
                   title.title
                 )}`
               );
@@ -151,7 +154,7 @@ document.addEventListener("DOMContentLoaded", function () {
               button.addEventListener("click", async () => {
                 try {
                   const response = await fetch(
-                    `http://localhost:5000/get_form_data?title=${encodeURIComponent(
+                    `${BACKEND_URL}/get_form_data?title=${encodeURIComponent(
                       title.title
                     )}`
                   );

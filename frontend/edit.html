@@ -5,10 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Job Form</title>
-    <link rel="icon" type="image/png" sizes="32x32" href="./chrome-extension/job.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="./chrome-extension/job.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="./job.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="./job.png" />
     <link rel="manifest" href="./site.webmanifest" />
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="./styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         .edit-container {
@@ -42,6 +42,7 @@
             align-items: center;
             margin-bottom: 5px;
         }
+
         .edit-button {
             background-color: #007bff;
             color: white;
@@ -52,12 +53,15 @@
             font-size: 14px;
             transition: background-color 0.2s;
         }
+
         .edit-button:hover {
             background-color: #0056b3;
         }
+
         .edit-button:active {
             background-color: #003974;
         }
+
         .save-form-button {
             margin-top: 24px;
             padding: 12px 28px;
@@ -72,13 +76,17 @@
             display: block;
             width: 100%;
         }
+
         .save-form-button:hover {
             background-color: #218838;
         }
+
         .save-form-button:active {
             background-color: #1e7e34;
         }
-        .field-value input, .field-value textarea {
+
+        .field-value input,
+        .field-value textarea {
             width: 100%;
             padding: 10px;
             font-size: 16px;
@@ -87,6 +95,7 @@
             background: var(--panel-bg);
             color: var(--text-color);
         }
+
         .field-value textarea {
             min-height: 60px;
             resize: vertical;
@@ -190,10 +199,13 @@
         <div id="fieldsContainer"></div>
     </div>
     <script>
+
+        const BACKEND_URL = 'http://localhost:5000';
+
         // Fetch job titles for dropdown
         async function fetchJobTitles() {
             try {
-                const res = await fetch('http://localhost:5000/get_data_titles');
+                const res = await fetch(`${BACKEND_URL}/get_data_titles`);
                 const data = await res.json();
                 const dropdown = document.getElementById('jobTitleDropdown');
                 data.forEach(item => {
@@ -213,7 +225,7 @@
             fieldsContainer.innerHTML = '';
             if (!title) return;
             try {
-                const res = await fetch(`http://localhost:5000/get_form_data?title=${encodeURIComponent(title)}`);
+                const res = await fetch(`${BACKEND_URL}/get_form_data?title=${encodeURIComponent(title)}`);
                 const result = await res.json();
                 if (result) {
                     renderFields(result);
@@ -303,7 +315,7 @@
                 formData: editableFields
             };
             try {
-                const res = await fetch('http://localhost:5000/save_form_data', {
+                const res = await fetch(`${BACKEND_URL}/save_form_data`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
