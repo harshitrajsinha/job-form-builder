@@ -20,7 +20,7 @@ app = Flask(__name__)
 
 # Configure CORS
 # if ALLOWED_ORIGINS env is null then string (2nd arg) will be used as default
-allowed_origins = os.getenv('ALLOWED_ORIGINS', 'http://localhost:8000,http://localhost:8080,http://locahost:8888').split(',')
+allowed_origins = list(set(os.getenv('ALLOWED_ORIGINS', 'http://localhost:8000,http://localhost:8080,http://locahost:8888').split(',')))
 CORS(app, resources={
     r"/*": {"origins": allowed_origins}
 })
@@ -30,10 +30,10 @@ CORS(app, resources={
 def after_request(response):
     origin = request.headers.get('Origin', '')
     if origin in allowed_origins:
-        response.headers.add('Access-Control-Allow-Origin', origin)
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-    response.headers.add('Access-Control-Allow-Credentials', 'true')
+        response.headers['Access-Control-Allow-Origin'] = origin
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
+    response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE,OPTIONS'
+    response.headers['Access-Control-Allow-Credentials'] = 'true'
     return response
 
 # Database configuration
