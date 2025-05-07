@@ -1,9 +1,13 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Form Preview</title>
+    <title>Job Form Preview</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="./chrome-extension/job.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="./chrome-extension/job.png" />
+    <link rel="manifest" href="./site.webmanifest" />
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -143,6 +147,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="theme-toggle">
         <input type="checkbox" id="theme-toggle-checkbox" class="theme-toggle-checkbox">
@@ -166,9 +171,9 @@
         const html = document.documentElement;
 
         // Check for saved theme preference or use system preference
-        const savedTheme = localStorage.getItem('theme') || 
+        const savedTheme = localStorage.getItem('theme') ||
             (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-        
+
         // Apply the saved theme
         html.setAttribute('data-theme', savedTheme);
         themeToggle.checked = savedTheme === 'dark';
@@ -181,22 +186,22 @@
         });
 
         // Make copyFieldValue function globally accessible
-        window.copyFieldValue = function(button) {
+        window.copyFieldValue = function (button) {
             const fieldDiv = button.closest('.field-preview');
             const fieldValue = fieldDiv.querySelector('.field-value').textContent;
-            
+
             // Create a temporary textarea element
             const textarea = document.createElement('textarea');
             textarea.value = fieldValue;
             document.body.appendChild(textarea);
-            
+
             // Select and copy the text
             textarea.select();
             document.execCommand('copy');
-            
+
             // Remove the temporary element
             document.body.removeChild(textarea);
-            
+
             // Show success message
             button.textContent = 'Copied!';
             setTimeout(() => {
@@ -246,7 +251,7 @@
                     });
 
                     const data = await response.json();
-                    
+
                     if (response.ok) {
                         saveStatus.textContent = 'Data saved successfully!';
                         saveStatus.className = 'save-status success';
@@ -272,39 +277,40 @@
 
         // Load form data from localStorage
         const formData = JSON.parse(localStorage.getItem('formData')) || [];
-        
+
         const formPreviewContainer = document.getElementById('formPreviewContainer');
-        
+
         formData.forEach(field => {
             const fieldDiv = document.createElement('div');
             fieldDiv.className = 'field-preview';
-            
+
             const fieldHeader = document.createElement('div');
             fieldHeader.className = 'field-header';
-            
+
             const fieldTitle = document.createElement('div');
             fieldTitle.className = 'field-title';
             fieldTitle.textContent = field.title;
-            
+
             const copyButton = document.createElement('button');
             copyButton.className = 'copy-button';
             copyButton.textContent = 'Copy';
-            copyButton.onclick = function() {
+            copyButton.onclick = function () {
                 window.copyFieldValue(this);
             };
-            
+
             fieldHeader.appendChild(fieldTitle);
             fieldHeader.appendChild(copyButton);
-            
+
             const fieldValue = document.createElement('div');
             fieldValue.className = 'field-value';
             fieldValue.textContent = field.value || '';
-            
+
             fieldDiv.appendChild(fieldHeader);
             fieldDiv.appendChild(fieldValue);
-            
+
             formPreviewContainer.appendChild(fieldDiv);
         });
     </script>
 </body>
+
 </html>
