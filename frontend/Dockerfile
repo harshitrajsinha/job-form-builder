@@ -2,6 +2,7 @@ FROM nginx:alpine
 
 # Copy static files into Nginx html directory
 COPY index.html /usr/share/nginx/html/
+COPY create.html /usr/share/nginx/html/
 COPY edit.html /usr/share/nginx/html/
 COPY preview.html /usr/share/nginx/html/
 COPY styles.css /usr/share/nginx/html/
