@@ -14,6 +14,20 @@ Job Form Builder is a user-friendly web application designed to streamline the j
 - Save to local database (Info remains on your system)
 - Edit existing form
 
+![Video walkthrough](./sample.gif)
+
+**Create Form**
+
+![Create Form](./create-form.png)
+
+**Preview and Save Form**
+
+![Preview and Save Form](./preview-save.png)
+
+**Use Form**
+
+![Use Form](./use-form.png)
+
 ## How to use
 
 1. Make sure you have Docker installed on your system - [Docker](https://www.docker.com/)
@@ -52,14 +66,6 @@ docker-compose up --build
 7. Setup Chrome extension \
    Browser -> Extensions -> Manage Extension -> Enable 'Developer mode' -> `Load unpacked` -> Select `chrome-extension` folder present in /job-form-builder -> Use the extension
 
-**Create Form**
+## Video Walkthrough
 
-![Create Form](./create-form.png)
-
-**Preview and Save Form**
-
-![Preview and Save Form](./preview-save.png)
-
-**Use Form**
-
-![Use Form](./use-form.png)
+[Video walkthrough of project](https://youtu.be/ScLx3pms3uc)
