@@ -13,7 +13,7 @@
 </head>
 
 <body>
-    <div class="theme-toggle" style="position: absolute; top: 24px; right: 32px;">
+    <div class="theme-toggle">
         <input type="checkbox" id="theme-toggle-checkbox" class="theme-toggle-checkbox">
         <label for="theme-toggle-checkbox" class="theme-toggle-label">
             <i class="fas fa-sun"></i>
@@ -21,22 +21,41 @@
             <span class="theme-toggle-ball"></span>
         </label>
     </div>
-    <div class="container"
-        style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80vh;">
-        <button onclick="window.location.href='create.html'"
-            style="width: 320px; max-width: 90vw; padding: 28px 0; font-size: 1.4rem; margin-bottom: 32px; border: none; border-radius: 8px; background: var(--accent-color, #007bff); color: #fff; font-weight: bold; cursor: pointer; transition: background 0.2s;">Create
-            Form</button>
-        <button onclick="window.location.href='edit.html'"
-            style="width: 320px; max-width: 90vw; padding: 28px 0; font-size: 1.4rem; border: none; border-radius: 8px; background: #e1dddd; color: #222; font-weight: bold; cursor: pointer; transition: background 0.2s;">Edit
-            Form</button>
+    <div class="container">
+        <div class="left-panel">
+            <h2>Form Fields</h2>
+            <div class="field-list">
+                <div class="field-item" data-type="text">Text Field</div>
+                <div class="field-item" data-type="textarea">Text Area</div>
+                <div class="field-item" data-type="number">Number Field</div>
+                <div class="field-item" data-type="email">Email Field</div>
+            </div>
+        </div>
+        <div class="right-panel">
+            <h2>Form Preview</h2>
+            <div class="form-container">
+                <form id="formPreview">
+                    <!-- Form fields will be added here -->
+                </form>
+                <button id="submitForm" class="submit-button" disabled>Submit Form</button>
+            </div>
+        </div>
     </div>
+    <script src="./script.js"></script>
     <script>
         // Theme toggle functionality
         const themeToggle = document.getElementById('theme-toggle-checkbox');
         const html = document.documentElement;
-        const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+        // Check for saved theme preference or use system preference
+        const savedTheme = localStorage.getItem('theme') ||
+            (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+        // Apply the saved theme
         html.setAttribute('data-theme', savedTheme);
         themeToggle.checked = savedTheme === 'dark';
+
+        // Toggle theme on checkbox change
         themeToggle.addEventListener('change', () => {
             const newTheme = themeToggle.checked ? 'dark' : 'light';
             html.setAttribute('data-theme', newTheme);
