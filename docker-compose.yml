@@ -1,8 +1,6 @@
 services:
   frontend:
-    build:
-      context: .
-      dockerfile: harshitrajsinha/job-form-builder-frontend
+    image: harshitrajsinha/job-form-builder-frontend
     ports:
       - "8888:80"
     depends_on:
@@ -12,9 +10,7 @@ services:
       - app-network
 
   backend:
-    build:
-      context: .
-      dockerfile: harshitrajsinha/job-form-builder-backend
+    image: harshitrajsinha/job-form-builder-backend
     ports:
       - "5000:5000"
     env_file:
