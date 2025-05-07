@@ -19,6 +19,7 @@ app = Flask(__name__)
 
 
 # Configure CORS
+# if ALLOWED_ORIGINS env is null then string (2nd arg) will be used as default
 allowed_origins = os.getenv('ALLOWED_ORIGINS', 'http://localhost:8000,http://localhost:8080,http://locahost:8888').split(',')
 CORS(app, resources={
     r"/*": {"origins": allowed_origins}
@@ -89,10 +90,10 @@ def create_table(retries=5, delay=3):
             try:
                 cursor = conn.cursor()
                 cursor.execute('''
-                    CREATE TABLE IF NOT EXISTS form_data (
+                    CREATE TABLE IF NOT EXISTS job_form (
                         id SERIAL PRIMARY KEY,
-                        data_title VARCHAR(255) UNIQUE NOT NULL,
-                        data JSONB NOT NULL,
+                        job_title VARCHAR(255) UNIQUE NOT NULL,
+                        job_data JSONB NOT NULL,
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                     )
@@ -109,6 +110,7 @@ def create_table(retries=5, delay=3):
             logging.warning(f"Attempt {attempt+1} - DB not ready, retrying in {delay}s")
             time.sleep(delay)
     logging.error("Failed to create table after several attempts")
+    
 @app.route('/get_data_titles', methods=['GET'])
 def get_data_titles():
     try:
@@ -119,7 +121,7 @@ def get_data_titles():
             return jsonify({'error': 'Database connection failed'}), 500
 
         cursor = conn.cursor()
-        cursor.execute('SELECT id, data_title, created_at, updated_at FROM form_data ORDER BY updated_at DESC')
+        cursor.execute('SELECT id, job_title, created_at, updated_at FROM job_form ORDER BY updated_at DESC')
         rows = cursor.fetchall()
         
         data_list = []
@@ -158,8 +160,8 @@ def get_form_data():
 
         try:
             cursor = conn.cursor()
-            logging.info(f"Executing query: SELECT data FROM form_data WHERE data_title = '{title}'")
-            cursor.execute('SELECT data FROM form_data WHERE data_title = %s', (title,))
+            logging.info(f"Executing query: SELECT job_data FROM job_form WHERE job_title = '{title}'")
+            cursor.execute('SELECT job_data FROM job_form WHERE job_title = %s', (title,))
             row = cursor.fetchone()
             
             if row:
@@ -168,7 +170,10 @@ def get_form_data():
                 # logging.info(f"Found data: {data}")
                 logging.debug(f"Data content: {json.dumps(data, indent=2)}")
                 response = jsonify(data)
-                response.headers.add('Access-Control-Allow-Origin', 'http://localhost:8000')
+                origin = request.headers.get('Origin')
+                if origin in allowed_origins:
+                    response.headers.add('Access-Control-Allow-Origin', origin)
+                    response.headers.add('Vary', 'Origin')
                 response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
                 return response, 200
             else:
@@ -212,11 +217,11 @@ def save_form_data():
         
         # Try to update existing record with the same title
         cursor.execute('''
-            INSERT INTO form_data (data_title, data, updated_at)
+            INSERT INTO job_form (job_title, job_data, updated_at)
             VALUES (%s, %s, CURRENT_TIMESTAMP)
-            ON CONFLICT (data_title)
+            ON CONFLICT (job_title)
             DO UPDATE SET
-                data = EXCLUDED.data,
+                job_data = EXCLUDED.job_data,
                 updated_at = EXCLUDED.updated_at
             RETURNING id
         ''', (title, json.dumps(form_data)))

@@ -1,0 +1,17 @@
+{
+  "name": "Job Form Builder",
+  "short_name": "Job Form Builder",
+  "icons": [
+    {
+      "src": "./chrome-extension/job.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "./chrome-extension/job.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    }
+  ],
+  "display": "standalone"
+}

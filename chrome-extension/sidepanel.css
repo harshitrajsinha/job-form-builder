@@ -1,0 +1,123 @@
+body {
+  margin: 0;
+  padding: 5px;
+  font-family: Arial, sans-serif;
+  background-color: #f5f5f5;
+  height: 100vh;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.preview-container {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 32px);
+}
+
+h2 {
+  font-size: 1.8em;
+  font-weight: bold;
+}
+
+h4 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  color: #333;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+#formPreviewContent {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.field-preview {
+  margin-bottom: 10px;
+  padding: 8px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.field-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.field-title {
+  font-weight: bold;
+  color: #333;
+  margin: 0;
+}
+
+.field-value {
+  padding: 10px;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  width: 100%;
+  font-size: 1.1em;
+  min-height: 40px;
+  max-height: 200px;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  line-height: 1.5;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #888 #f1f1f1;
+  box-sizing: border-box;
+}
+
+.copy-button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.copy-button:hover {
+  background-color: #45a049;
+}
+
+.copy-button:active {
+  background-color: #388e3c;
+}
+
+.field-value::-webkit-scrollbar {
+  width: 8px;
+}
+
+.field-value::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.field-value::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.field-value::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.notification {
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  border-radius: 4px;
+  color: #155724;
+  opacity: 1;
+  transition: opacity 0.5s;
+}

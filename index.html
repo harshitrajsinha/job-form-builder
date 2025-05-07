@@ -1,12 +1,17 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Form Builder</title>
+    <title>Job Form Builder</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="./chrome-extension/job.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="./chrome-extension/job.png" />
+    <link rel="manifest" href="./site.webmanifest" />
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
+
 <body>
     <div class="theme-toggle">
         <input type="checkbox" id="theme-toggle-checkbox" class="theme-toggle-checkbox">
@@ -24,7 +29,6 @@
                 <div class="field-item" data-type="textarea">Text Area</div>
                 <div class="field-item" data-type="number">Number Field</div>
                 <div class="field-item" data-type="email">Email Field</div>
-                <div class="field-item" data-type="password">Password Field</div>
             </div>
         </div>
         <div class="right-panel">
@@ -44,9 +48,9 @@
         const html = document.documentElement;
 
         // Check for saved theme preference or use system preference
-        const savedTheme = localStorage.getItem('theme') || 
+        const savedTheme = localStorage.getItem('theme') ||
             (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-        
+
         // Apply the saved theme
         html.setAttribute('data-theme', savedTheme);
         themeToggle.checked = savedTheme === 'dark';
@@ -59,4 +63,5 @@
         });
     </script>
 </body>
+
 </html>
