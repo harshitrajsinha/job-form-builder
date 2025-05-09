@@ -213,6 +213,10 @@
             }, 2000);
         }
 
+        if (localStorage.getItem('selectedJobTitle')) {
+            document.getElementById('dataTitle').value = localStorage.getItem('selectedJobTitle');
+        }
+
         // Add save to database functionality
         document.addEventListener('DOMContentLoaded', () => {
             const saveButton = document.getElementById('saveButton');
