@@ -1,17 +1,28 @@
 document.addEventListener("DOMContentLoaded", () => {
   const formPreview = document.getElementById("formPreview");
+  const selectedFormFields = document.getElementById("fieldsContainer");
   const fieldItems = document.querySelectorAll(".field-item");
   const submitButton = document.getElementById("submitForm");
   let formData = JSON.parse(localStorage.getItem("formData")) || [];
 
   // Function to save form data to localStorage
   function saveFormData() {
-    const fields = Array.from(formPreview.querySelectorAll(".form-field"));
-    formData = fields.map((field) => ({
+    const totalFields = []
+    if (selectedFormFields) {
+      const selectedfields = Array.from(selectedFormFields.querySelectorAll(".field-preview"));
+      formData = selectedfields.map((field) => ({
+        title: field.querySelector(".field-title").textContent,
+        value: field.querySelector("input, textarea").value,
+      }));
+      totalFields.push(...formData);
+    }
+    const newfields = Array.from(formPreview.querySelectorAll(".form-field"));
+    formData = newfields.map((field) => ({
       title: field.querySelector(".field-title").textContent,
       value: field.querySelector("input, textarea").value,
     }));
-    localStorage.setItem("formData", JSON.stringify(formData));
+    totalFields.push(...formData);
+    localStorage.setItem("formData", JSON.stringify(totalFields));
   }
 
   // Make field items clickable
