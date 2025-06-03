@@ -6,7 +6,8 @@ from flask_cors import CORS
 import psycopg2
 import json
 import time
-
+from redis import Redis, Redis as RedisClient
+import pickle
 
 # Load environment variables
 load_dotenv()
@@ -19,10 +20,9 @@ logging.basicConfig(
 
 app = Flask(__name__)
 
-
 # Configure CORS
 # if ALLOWED_ORIGINS env is null then string (2nd arg) will be used as default
-allowed_origins = list(set(os.getenv('ALLOWED_ORIGINS', 'http://locahost:8888').split(',')))
+allowed_origins = list(set(os.getenv('ALLOWED_ORIGINS', 'http://localhost:8888').split(',')))
 CORS(app, resources={
     r"/*": {"origins": allowed_origins}
 })
@@ -38,6 +38,14 @@ def after_request(response):
     response.headers['Access-Control-Allow-Credentials'] = 'true'
     return response
 
+# Redis configuration
+REDIS_CONFIG = {
+    'url': os.getenv('REDIS_URL', 'redis://:password@localhost:6379/0')
+}
+
+REDIS_ADDR = os.getenv('REDIS_ADDR')  # e.g., host:port
+REDIS_PASS = os.getenv('REDIS_PASS')
+
 # Database configuration
 DB_CONFIG = {
     'user': os.getenv('DB_USER'),
@@ -47,6 +55,8 @@ DB_CONFIG = {
     'database': os.getenv('DB_NAME')
 }
 
+DB_URL = os.getenv('DB_URL')
+
 # Application configuration
 app.config.update(
     SECRET_KEY=os.getenv('SECRET_KEY', 'dev-key-change-in-production'),
@@ -55,7 +65,7 @@ app.config.update(
 
 def create_connection():
     try:
-        conn = psycopg2.connect(**DB_CONFIG)
+        conn = psycopg2.connect(DB_URL)
         logging.info('Database connection established')
         return conn
     except psycopg2.Error as e:
@@ -116,27 +126,48 @@ def create_table(retries=5, delay=3):
 @app.route('/get_data_titles', methods=['GET'])
 def get_data_titles():
     try:
-        logging.info("Fetching data titles")
-        conn = create_connection()
-        if not conn:
-            logging.error('Database connection failed')
-            return jsonify({'error': 'Database connection failed'}), 500
+        # Check if data is in Redis cache
+        cache_key = 'job_form_titles'
+        
+        # Create Redis client with URL
+        # redis = Redis.from_url(url)
+        host, port = REDIS_ADDR.split(':')
+        redis_client = Redis(
+            host=host,
+            port=int(port),
+            password=REDIS_PASS,
+        )
+        
+        cached_data = redis_client.get(cache_key)
+        if cached_data:
+            logging.info("Fetching data titles from cache")
+            data_list = pickle.loads(cached_data)
+        else:
+            logging.info("Fetching data titles from database")
+            conn = create_connection()
+            if not conn:
+                logging.error('Database connection failed')
+                return jsonify({'error': 'Database connection failed'}), 500
 
-        cursor = conn.cursor()
-        cursor.execute('SELECT id, job_title, created_at, updated_at FROM job_form ORDER BY updated_at DESC')
-        rows = cursor.fetchall()
-        
-        data_list = []
-        for row in rows:
-            data_list.append({
-                'id': row[0],
-                'title': row[1],
-                'created_at': row[2].isoformat(),
-                'updated_at': row[3].isoformat()
-            })
-        
-        cursor.close()
-        conn.close()
+            cursor = conn.cursor()
+            cursor.execute('SELECT id, job_title, created_at, updated_at FROM job_form ORDER BY updated_at DESC')
+            rows = cursor.fetchall()
+            
+            data_list = []
+            for row in rows:
+                data_list.append({
+                    'id': row[0],
+                    'title': row[1],
+                    'created_at': row[2].isoformat(),
+                    'updated_at': row[3].isoformat()
+                })
+            
+            cursor.close()
+            conn.close()
+            
+            # Cache the data for 5 minutes (300 seconds)
+            logging.info("Caching data titles to redis")
+            redis_client.set(cache_key, pickle.dumps(data_list), ex=300)
         
         logging.info(f"Found {len(data_list)} titles")
         return jsonify(data_list), 200
@@ -152,6 +183,28 @@ def get_form_data():
         if not title:
             logging.error('Title parameter is required')
             return jsonify({'error': 'Title parameter is required'}), 400
+
+        # Create Redis cache key based on title
+        cache_key = f'job_form_data:{title}'
+        
+        # Check Redis cache first
+        host, port = REDIS_ADDR.split(':')
+        redis_client = Redis(
+            host=host,
+            port=int(port),
+            password=REDIS_PASS,
+        )
+        
+        cached_data = redis_client.get(cache_key)
+        if cached_data:
+            logging.info(f"Fetching data for title '{title}' from cache")
+            data = pickle.loads(cached_data)
+            response = jsonify(data)
+            origin = request.headers.get('Origin', '')
+            if origin in allowed_origins:
+                response.headers['Access-Control-Allow-Origin'] = origin
+            response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
+            return response, 200
 
         logging.info(f"Attempting to fetch data for title: {title}")
         
@@ -169,8 +222,11 @@ def get_form_data():
             if row:
                 data = row[0]
                 logging.info(f"Found data for title: {title}")
-                # logging.info(f"Found data: {data}")
                 logging.debug(f"Data content: {json.dumps(data, indent=2)}")
+                
+                # Cache the data for 5 minutes
+                redis_client.set(cache_key, pickle.dumps(data), ex=300)
+                
                 response = jsonify(data)
                 origin = request.headers.get('Origin', '')
                 if origin in allowed_origins:
@@ -210,6 +266,16 @@ def save_form_data():
         if not title or not form_data:
             return jsonify({'error': 'Missing title or form data'}), 400
 
+        # Invalidate Redis cache for this form data
+        cache_key = f'job_form_data:{title}'
+        host, port = REDIS_ADDR.split(':')
+        redis_client = Redis(
+            host=host,
+            port=int(port),
+            password=REDIS_PASS,
+        )
+        redis_client.delete(cache_key)
+        
         conn = create_connection()
         if not conn:
             return jsonify({'error': 'Database connection failed'}), 500
