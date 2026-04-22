@@ -1,12 +1,11 @@
-
-const BACKEND_URL = 'http://localhost:5000';
+const BACKEND_URL = "https://job-form-cjwx.onrender.com";
 
 document.addEventListener("DOMContentLoaded", function () {
   console.log("Popup: Script loaded");
   const previewButton = document.getElementById("previewForm");
   const container = document.getElementById("titlesContainer");
 
-  // Close popup when clicking outside  
+  // Close popup when clicking outside
   document.addEventListener("click", (e) => {
     if (e.target === document.documentElement) {
       window.close();
@@ -28,13 +27,19 @@ document.addEventListener("DOMContentLoaded", function () {
           chrome.storage.local.set({ formPreviewData: formData }, () => {
             chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
               if (tabs.length > 0) {
-                chrome.sidePanel.open({ windowId: tabs[0].windowId }).then(() => {
-                  console.log("Side panel opened successfully");
-                  window.close();
-                }).catch((err) => {
-                  console.error("Error opening side panel:", err);
-                  showMessage("Error opening side panel. Please try again.", "error");
-                });
+                chrome.sidePanel
+                  .open({ windowId: tabs[0].windowId })
+                  .then(() => {
+                    console.log("Side panel opened successfully");
+                    window.close();
+                  })
+                  .catch((err) => {
+                    console.error("Error opening side panel:", err);
+                    showMessage(
+                      "Error opening side panel. Please try again.",
+                      "error"
+                    );
+                  });
               } else {
                 showMessage("No active tab found.", "error");
               }
